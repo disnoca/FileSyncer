@@ -13,6 +13,9 @@ void* Calloc(size_t nitems, size_t size);
 void* Realloc(void* ptr, size_t size);
 void Free(void* ptr);
 
+FILE* Fopen(const char* filename, const char* mode);
+void Fclose(FILE* stream);
+
 void _WSAStartup(WORD wVersionRequired, LPWSADATA lpWSAData);
 
 SOCKET Socket(int af, int type, int protocol);

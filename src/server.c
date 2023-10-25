@@ -5,13 +5,22 @@
 #include <stdio.h>
 #include "wrapper_functions.h"
 
+#define SERVER_CONFIG_FILE_NAME "server.conf"
+
+#define PORT_MAX_LENGTH 		5
+
 
 /**
  * Initializes the server and returns its socket.
  * 
  * @return the server's socket
 */
-SOCKET init_server(char* port) {
+SOCKET init_server() {
+	char port[PORT_MAX_LENGTH + 1];
+
+	FILE* fp = Fopen(SERVER_CONFIG_FILE_NAME, "r");
+	fscanf(fp, "%*s\n%s", port);
+
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2,2), &wsaData);
 
@@ -35,8 +44,8 @@ SOCKET init_server(char* port) {
 	return sServer;
 }
 
-int main(int argc, char** argv) {
-	SOCKET sServer = init_server(argv[1]);
+int main(void) {
+	SOCKET sServer = init_server();
 
 	Listen(sServer, SOMAXCONN);
 	SOCKET sClient = Accept(sServer, NULL, NULL);

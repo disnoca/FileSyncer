@@ -15,6 +15,8 @@ target_link_libraries(server PRIVATE wrappers wsock32 ws2_32)
 add_executable(client client.c)
 target_link_libraries(client PRIVATE wrappers wsock32 ws2_32)
 
+file(COPY ../configs/ DESTINATION ../build/)
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
