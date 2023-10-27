@@ -3,11 +3,19 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "directory_event_listener.h"
 #include "wrapper_functions.h"
 
 #define SERVER_CONFIG_FILE_NAME "server.conf"
 
-#define PORT_MAX_LENGTH 		5
+#define PORT_MAX_LENGTH 5
+
+#define FILE_DATA_BATCH_MAX_SIZE 1048576
+
+
+void send_file() {
+
+}
 
 
 /**
@@ -46,16 +54,6 @@ SOCKET init_server() {
 
 int main(void) {
 	SOCKET sServer = init_server();
-
-	Listen(sServer, SOMAXCONN);
-	SOCKET sClient = Accept(sServer, NULL, NULL);
-
-	char* buffer = Calloc(1024, sizeof(char));
-
-	Recv(sClient, buffer, 1024, 0);
-	printf("%s\n", buffer);
-
-	closesocket(sClient);
 
 	return 0;
 }

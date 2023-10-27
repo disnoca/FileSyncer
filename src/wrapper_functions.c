@@ -119,3 +119,37 @@ void Getaddrinfo(PCSTR pNodeName, PCSTR pServiceName, const ADDRINFOA *pHints, P
     if (res != 0)
         exit_with_error("getaddrinfo error: %d\n", res);
 }
+
+
+HANDLE _CreateFileW(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile) {
+    HANDLE hFile = CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+    if(hFile == INVALID_HANDLE_VALUE)
+        exit_with_error("CreateFileW error: %lu\n", GetLastError());
+    return hFile;
+}
+
+
+HANDLE _CreateThread(LPSECURITY_ATTRIBUTES lpThreadAttributes, SIZE_T dwStackSize, LPTHREAD_START_ROUTINE  lpStartAddress, __drv_aliasesMem LPVOID lpParameter, DWORD dwCreationFlags, LPDWORD lpThreadId) {
+    HANDLE hThread = CreateThread(lpThreadAttributes, dwStackSize, lpStartAddress, lpParameter, dwCreationFlags, lpThreadId);
+    if(hThread == NULL)
+        exit_with_error("CreateThread error: %lu\n", GetLastError());
+    return hThread;
+}
+
+DWORD _WaitForSingleObject(HANDLE hHandle, DWORD dwMilliseconds) {
+    DWORD res = WaitForSingleObject(hHandle, dwMilliseconds);
+    if(res == WAIT_FAILED)
+        exit_with_error("WaitForSingleObject error: %lu\n", GetLastError());
+    return res;
+}
+
+void _GetOverlappedResult(HANDLE hFile, LPOVERLAPPED lpOverlapped, LPDWORD lpNumberOfBytesTransferred, BOOL bWait) {
+    if(!GetOverlappedResult(hFile, lpOverlapped, lpNumberOfBytesTransferred, bWait))
+        exit_with_error("GetOverlappedResult error: %lu\n", GetLastError());
+}
+
+
+void _ReadDirectoryChangesW( HANDLE hDirectory, LPVOID lpBuffer, DWORD nBufferLength, BOOL bWatchSubtree, DWORD dwNotifyFilter, LPDWORD lpBytesReturned, LPOVERLAPPED lpOverlapped, LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine) {
+    if(!ReadDirectoryChangesW(hDirectory, lpBuffer, nBufferLength, bWatchSubtree, dwNotifyFilter, lpBytesReturned, lpOverlapped, lpCompletionRoutine))
+        exit_with_error("ReadDirectoryChangesW error: %lu\n", GetLastError());
+}

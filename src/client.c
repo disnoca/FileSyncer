@@ -59,13 +59,5 @@ SOCKET connect_to_server() {
 int main(void) {
 	SOCKET sConn = connect_to_server();
 
-	char* buffer = Calloc(1024, sizeof(char));
-	sprintf(buffer, "Hello from client!\n");
-
-	Send(sConn, buffer, 1024, 0);
-
-	closesocket(sConn);
-    WSACleanup();
-
 	return 0;
 }
