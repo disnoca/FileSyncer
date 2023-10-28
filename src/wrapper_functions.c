@@ -140,12 +140,33 @@ DWORD _WaitForSingleObject(HANDLE hHandle, DWORD dwMilliseconds) {
     DWORD res = WaitForSingleObject(hHandle, dwMilliseconds);
     if(res == WAIT_FAILED)
         exit_with_error("WaitForSingleObject error: %lu\n", GetLastError());
+    else if(res == WAIT_ABANDONED)
+        exit_with_error("WaitForSingleObject error: WAIT_ABANDONED\n");
     return res;
+}
+
+HANDLE _CreateEventW(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState, LPCWSTR lpName) {
+    HANDLE hEvent = CreateEventW(lpEventAttributes, bManualReset, bInitialState, lpName);
+    if(hEvent == NULL)
+        exit_with_error("CreateEventW error: %lu\n", GetLastError());
+    return hEvent;
 }
 
 void _GetOverlappedResult(HANDLE hFile, LPOVERLAPPED lpOverlapped, LPDWORD lpNumberOfBytesTransferred, BOOL bWait) {
     if(!GetOverlappedResult(hFile, lpOverlapped, lpNumberOfBytesTransferred, bWait))
         exit_with_error("GetOverlappedResult error: %lu\n", GetLastError());
+}
+
+HANDLE _CreateMutexW(LPSECURITY_ATTRIBUTES lpMutexAttributes, BOOL bInitialOwner, LPCWSTR lpName) {
+    HANDLE hMutex = CreateMutexW(lpMutexAttributes, bInitialOwner, lpName);
+    if(hMutex == NULL)
+        exit_with_error("CreateMutexW error: %lu\n", GetLastError());
+    return hMutex;
+}
+
+void _ReleaseMutex(HANDLE hMutex) {
+    if(!ReleaseMutex(hMutex))
+        exit_with_error("ReleaseMutex error: %lu\n", GetLastError());
 }
 
 
