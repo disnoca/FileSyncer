@@ -3,9 +3,12 @@
 #include <windows.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "data_structures/hash_map/hash_map.h"
+#include "directory_event_listener.h"
 #include "wrapper_functions.h"
 
 #define SERVER_CONFIG_FILE_NAME "server.conf"
+#define DIRECTORY_LINKS_FILE_NAME "directory_links.conf"
 
 #define HOSTNAME_MAX_LENGTH 	255
 #define PORT_MAX_LENGTH 		5
@@ -58,6 +61,23 @@ SOCKET connect_to_server() {
 
 int main(void) {
 	SOCKET sConn = connect_to_server();
+
+	HashMap* directory_links = hm_create();
+	FILE *fp = Fopen(DIRECTORY_LINKS_FILE_NAME, "r");
+
+	WCHAR server_dir[PATH_MAX];
+	WCHAR client_dir[PATH_MAX];
+
+	while(fwscanf(fp, L"%ls %ls", server_dir, client_dir) == 2) {
+		WCHAR* heap_server_dir = Malloc((wcslen(server_dir) + 1) * sizeof(WCHAR));
+    	WCHAR* heap_client_dir = Malloc((wcslen(client_dir) + 1) * sizeof(WCHAR));
+    	wcscpy(heap_server_dir, server_dir);
+   		wcscpy(heap_client_dir, client_dir);
+
+		hm_put(directory_links, heap_client_dir, heap_server_dir);
+		// call function to check for discrepancies beteween server and client directories
+		directory_event_listener_start(heap_client_dir, NULL);
+	}
 
 	return 0;
 }

@@ -36,7 +36,16 @@ static DWORD WINAPI directory_event_listener_thread(LPVOID lpParam) {
 			memcpy(file_name, fni->FileName, fni->FileNameLength);
 			file_name[fni->FileNameLength/2] = L'\0';
 
-			handler_function(fni->Action, deld->dir_path, fni->FileName);
+			switch(fni->Action) {
+				case FILE_ACTION_ADDED: printf("Added: %ls (%lld)\n", file_name, wcslen(file_name)); break;
+				case FILE_ACTION_REMOVED: printf("Removed: %ls (%lld)\n", file_name, wcslen(file_name)); break;
+				case FILE_ACTION_MODIFIED: printf("Modified: %ls (%lld)\n", file_name, wcslen(file_name)); break;
+				case FILE_ACTION_RENAMED_OLD_NAME: printf("Renamed old name: %ls (%lld)\n", file_name, wcslen(file_name)); break;
+				case FILE_ACTION_RENAMED_NEW_NAME: printf("Renamed new name: %ls (%lld)\n", file_name, wcslen(file_name)); break;
+			}
+
+			// handler_function(fni->Action, deld->dir_path, fni->FileName);
+			Free(file_name);
 
 			if(fni->NextEntryOffset == 0)
 				break;
@@ -50,10 +59,8 @@ static DWORD WINAPI directory_event_listener_thread(LPVOID lpParam) {
 
 void directory_event_listener_start(WCHAR* dir_path, void (*handler_function) (DWORD action, WCHAR* dir_path, WCHAR* file_name)) {
 	directory_event_listener_data *deld = Malloc(sizeof(directory_event_listener_data));
-	deld->dir_path = Malloc((wcslen(dir_path) + 1) * sizeof(WCHAR));
+	deld->dir_path = dir_path;
 	deld->handler_function = handler_function;
-
-	wcscpy(deld->dir_path, dir_path);
 
 	_CreateThread(NULL, 0, directory_event_listener_thread, deld, 0, NULL);
 }

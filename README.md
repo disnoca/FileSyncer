@@ -8,12 +8,12 @@ HEADER: Magic Number || Message Type
 
 CONTENT: Path Size || Path || Data Size || Data
 
-Magic Number (4 bytes): 32C66E2F
+Magic Number (4 bytes): 0x32C66E2F
 
 Message Type (1 byte):
-- 0x0: Update File
-- 0x1: Create File
-- 0x2: Delete File
+- 0x00: Update File
+- 0x01: Create File
+- 0x02: Delete File
 
 ### Configuration Files
 - server.conf:
