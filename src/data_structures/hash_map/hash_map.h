@@ -1,5 +1,5 @@
-#ifndef H_HASH_MAP_INCLUDED
-#define H_HASH_MAP_INCLUDED
+#ifndef HASH_MAP_H_INCLUDED
+#define HASH_MAP_H_INCLUDED
 
 #include <windows.h>
 
@@ -16,24 +16,24 @@ struct HMNode {
 typedef struct {
     HMNode* buckets;    // the pointer to the first position of the array of buckets
     int capacity;       // the number of buckets
-    double load_factor; // the maximum ratio of size/capacity before the hash_map is resized
-    int size;           // the number of elements the hash_map currently has
+    double loadFactor;  // the maximum ratio of size/capacity before the hash map is resized
+    int size;           // the number of elements the hash map currently has
 } HashMap;
 
 /* ---------------- Functions ---------------- */
 
-HashMap* hm_create();
+HashMap* HMcreate();
 
-void hm_put(HashMap* hash_map, WCHAR* key, WCHAR* value);
+void HMput(HashMap* hm, WCHAR* key, WCHAR* value);
 
-WCHAR* hm_remove(HashMap* hash_map, WCHAR* key);
+WCHAR* HMremove(HashMap* hm, WCHAR* key);
 
-WCHAR* hm_get(HashMap* hash_map, WCHAR* key);
+WCHAR* HMget(HashMap* hm, WCHAR* key);
 
-WCHAR* hm_replace(HashMap* hash_map, WCHAR* key, WCHAR* value);
+WCHAR* HMreplace(HashMap* hm, WCHAR* key, WCHAR* value);
 
-void hm_clear(HashMap* hash_map);
+void HMclear(HashMap* hm);
 
-void hm_destroy(HashMap* hash_map);
+void HMdestroy(HashMap* hm);
 
 #endif

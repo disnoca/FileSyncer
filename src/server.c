@@ -18,7 +18,7 @@
  * 
  * @return the server's socket
 */
-SOCKET init_server() {
+SOCKET InitServer() {
 	char port[PORT_MAX_LENGTH + 1];
 
 	FILE* fp = Fopen(SERVER_CONFIG_FILE_NAME, "r");
@@ -48,9 +48,9 @@ SOCKET init_server() {
 }
 
 int main(void) {
-	SOCKET sServer = init_server();
+	SOCKET sServer = InitServer();
 
-	HashMap* directory_links = hm_create();
+	HashMap* directoryLinks = HMcreate();
 	FILE *fp = Fopen(DIRECTORY_LINKS_FILE_NAME, "r");
 
 	WCHAR server_dir[PATH_MAX];
@@ -62,10 +62,12 @@ int main(void) {
     	wcscpy(heap_server_dir, server_dir);
    		wcscpy(heap_client_dir, client_dir);
 
-		hm_put(directory_links, heap_server_dir, heap_client_dir);
+		HMput(directoryLinks, heap_server_dir, heap_client_dir);
 		// call function to check for discrepancies beteween server and client directories
-		directory_event_listener_start(heap_server_dir, NULL);
+		StartDirectoryEventListener(heap_server_dir, NULL);
 	}
+
+	while(TRUE);
 
 	return 0;
 }

@@ -1,62 +1,62 @@
-#ifndef _QUEUE_H
-#define _QUEUE_H
+#ifndef QUEUE_H_INCLUDED
+#define QUEUE_H_INCLUDED
 
 #include <windows.h>
 
-typedef struct queue_node queue_node;
+typedef struct QueueNode QueueNode;
 
 typedef struct {
-	queue_node *head, *tail;
+	QueueNode *head, *tail;
 	unsigned length;
-	HANDLE ed_mutex;
-} queue;
+	HANDLE edMutex;
+} Queue;
 
-struct queue_node {
+struct QueueNode {
 	void* data;
-	queue_node* next;
+	QueueNode* next;
 };
 
 /**
- * Creates a returns a pointer to a new queue.
+ * Creates a returns a pointer to a new Queue.
  * 
- * @return a pointer to a new queue
+ * @return a pointer to a new Queue
 */
-queue* queue_create();
+Queue* QueueCreate();
 
 /**
- * Adds the specified element to the end of the specified queue.
+ * Adds the specified element to the end of the specified Queue.
  * 
- * @param q the queue to add the element to
- * @param data the element to add to the queue
+ * @param q the Queue to add the element to
+ * @param data the element to add to the Queue
 */
-void enqueue(queue* q, void* data);
+void Enqueue(Queue* q, void* data);
 
 /**
- * Removes and returns the element at the front of the specified queue.
+ * Removes and returns the element at the front of the specified Queue.
  * 
- * @param q the queue to remove the element from
- * @return the element at the front of the specified queue
+ * @param q the Queue to remove the element from
+ * @return the element at the front of the specified Queue
 */
-void* dequeue(queue* q);
+void* Dequeue(Queue* q);
 
 /**
- * Adds the specified element to the end of the specified queue.
+ * Adds the specified element to the end of the specified Queue.
  * 
  * This function is thread-safe only for concurrent enqueue and dequeue calls, not for concurrent enqueue calls.
  * 
- * @param q the queue to add the element to
- * @param data the element to add to the queue
+ * @param q the Queue to add the element to
+ * @param data the element to add to the Queue
 */
-void concurrent_enqueue(queue* q, void* data);
+void ConcurrentEnqueue(Queue* q, void* data);
 
 /**
- * Removes and returns the element at the front of the specified queue.
+ * Removes and returns the element at the front of the specified Queue.
  * 
  * This function is thread-safe only for concurrent enqueue and dequeue calls, not for concurrent dequeue calls.
  * 
- * @param q the queue to remove the element from
- * @return the element at the front of the specified queue
+ * @param q the Queue to remove the element from
+ * @return the element at the front of the specified Queue
 */
-void* concurrent_dequeue(queue* q);
+void* ConcurrentDequeue(Queue* q);
 
 #endif

@@ -19,65 +19,65 @@ static const unsigned SEED = 0;
 static const int DEFUALT_INITIAL_CAPACITY = 1 << 4;    // aka 16
 static const double DEFAULT_LOAD_FACTOR = 0.75;
 
-static void add_entry(HashMap* hash_map, WCHAR* key, WCHAR* value);
+static void AddEntry(HashMap* hm, WCHAR* key, WCHAR* value);
 
 /* ---------------- Hash Functions ---------------- */
 
-static unsigned hash(const WCHAR* s) {
+static unsigned Hash(const WCHAR* s) {
     unsigned hash = SEED;
     while (*s)
         hash = hash * 101 + (unsigned)*s++;
     return hash;
 }
 
-static void rehash(HashMap* hash_map) {
-    hash_map->capacity *= 2;
-    int new_capacity = hash_map->capacity;
+static void Rehash(HashMap* hm) {
+    hm->capacity *= 2;
+    int newCapacity = hm->capacity;
 
-    HMNode* old_buckets = hash_map->buckets;
-    hash_map->buckets = (HMNode*) Calloc(new_capacity, sizeof(HMNode));
+    HMNode* oldBuckets = hm->buckets;
+    hm->buckets = (HMNode*) Calloc(newCapacity, sizeof(HMNode));
 
-    HMNode *curr_node, *next_node;
-    int old_capacity = new_capacity/2;
-    for(int i = 0; i < old_capacity; i++) {
-        curr_node = old_buckets + i;
-        if(!memcmp(curr_node, &EMPTY_NODE, sizeof(HMNode))) continue;
+    HMNode *currNode, *nextNode;
+    int oldCapacity = newCapacity/2;
+    for(int i = 0; i < oldCapacity; i++) {
+        currNode = oldBuckets + i;
+        if(!memcmp(currNode, &EMPTY_NODE, sizeof(HMNode))) continue;
 
-        add_entry(hash_map, curr_node->key, curr_node->value);
-        next_node = curr_node->next;
-        while(next_node != NULL) {
-            curr_node = next_node;
-            next_node = curr_node->next;
-            add_entry(hash_map, curr_node->key, curr_node->value);
-            Free(curr_node);       // only free the consequent nodes because the buckets themselves will be freed all at once
+        AddEntry(hm, currNode->key, currNode->value);
+        nextNode = currNode->next;
+        while(nextNode != NULL) {
+            currNode = nextNode;
+            nextNode = currNode->next;
+            AddEntry(hm, currNode->key, currNode->value);
+            Free(currNode);       // only free the consequent nodes because the buckets themselves will be freed all at once
         }
     }
 
-    Free(old_buckets);
+    Free(oldBuckets);
 }
 
 /* ---------------- Helper Functions ---------------- */
 
-static HMNode* create_node(WCHAR* key, WCHAR* value) {
+static HMNode* CreateNode(WCHAR* key, WCHAR* value) {
     HMNode* node = (HMNode*) Calloc(1, sizeof(HMNode));
     node->key = key;
     node->value = value;
     return node;
 }
 
-static HMNode* get_bucket(HashMap* hash_map, WCHAR* key) {
-    return hash_map->buckets + (hash(key) % hash_map->capacity);
+static HMNode* GetBucket(HashMap* hm, WCHAR* key) {
+    return hm->buckets + (Hash(key) % hm->capacity);
 }
 
-static HMNode* get_node(HashMap* hash_map, WCHAR* key) {
-    HMNode* bucket = get_bucket(hash_map, key);
+static HMNode* GetNode(HashMap* hm, WCHAR* key) {
+    HMNode* bucket = GetBucket(hm, key);
     while(wcscmp(bucket->key, key))
         bucket = bucket->next;
     return bucket;
 }
 
-static void add_entry(HashMap* hash_map, WCHAR* key, WCHAR* value) {
-    HMNode* bucket = get_bucket(hash_map, key);
+static void AddEntry(HashMap* hm, WCHAR* key, WCHAR* value) {
+    HMNode* bucket = GetBucket(hm, key);
     
     if(!memcmp(bucket, &EMPTY_NODE, sizeof(HMNode))) {
         bucket->key = key;
@@ -87,82 +87,82 @@ static void add_entry(HashMap* hash_map, WCHAR* key, WCHAR* value) {
 
     while(bucket->next != NULL)
         bucket = bucket->next;
-    bucket->next = create_node(key, value);
+    bucket->next = CreateNode(key, value);
 }
 
 /* ---------------- Header Implementation ---------------- */
 
-HashMap* hm_create() {
-    HashMap* hash_map = (HashMap*) Calloc(1, sizeof(HashMap));
-    hash_map->capacity = DEFUALT_INITIAL_CAPACITY;
-    hash_map->load_factor = DEFAULT_LOAD_FACTOR;
-    hash_map->buckets = (HMNode*) Calloc(DEFUALT_INITIAL_CAPACITY, sizeof(HMNode));
-    return hash_map;
+HashMap* HMcreate() {
+    HashMap* hm = (HashMap*) Calloc(1, sizeof(HashMap));
+    hm->capacity = DEFUALT_INITIAL_CAPACITY;
+    hm->loadFactor = DEFAULT_LOAD_FACTOR;
+    hm->buckets = (HMNode*) Calloc(DEFUALT_INITIAL_CAPACITY, sizeof(HMNode));
+    return hm;
 }
 
-void hm_put(HashMap* hash_map, WCHAR* key, WCHAR* value) {
-    add_entry(hash_map, key, value);
+void HMput(HashMap* hm, WCHAR* key, WCHAR* value) {
+    AddEntry(hm, key, value);
 
-    if(++hash_map->size > (hash_map->capacity * hash_map->load_factor))
-        rehash(hash_map);
+    if(++hm->size > (hm->capacity * hm->loadFactor))
+        Rehash(hm);
 }
 
-WCHAR* hm_remove(HashMap* hash_map, WCHAR* key) {
-    HMNode* bucket = get_bucket(hash_map, key);
+WCHAR* HMremove(HashMap* hm, WCHAR* key) {
+    HMNode* bucket = GetBucket(hm, key);
 
-    HMNode* prev_node = NULL;
+    HMNode* prevNode = NULL;
     while(wcscmp(bucket->key, key)) {
-        prev_node = bucket;
+        prevNode = bucket;
         bucket = bucket->next;
     }
 
     WCHAR* value = bucket->value;
-    if(prev_node == NULL)
+    if(prevNode == NULL)
         *bucket = EMPTY_NODE;
     else {
-        prev_node->next = bucket->next;
+        prevNode->next = bucket->next;
         Free(bucket);
     }
 
-    hash_map->size--;
+    hm->size--;
     return value;
 }
 
-WCHAR* hm_get(HashMap* hash_map, WCHAR* key) {
-    return get_node(hash_map, key)->value;
+WCHAR* HMget(HashMap* hm, WCHAR* key) {
+    return GetNode(hm, key)->value;
 }
 
-WCHAR* hm_replace(HashMap* hash_map, WCHAR* key, WCHAR* value) {
-    HMNode* node = get_node(hash_map, key);
+WCHAR* HMreplace(HashMap* hm, WCHAR* key, WCHAR* value) {
+    HMNode* node = GetNode(hm, key);
     WCHAR* old_value = node->value;
     node->value = value;
     return old_value;
 
 }
 
-void hm_clear(HashMap* hash_map) {
-    HMNode* buckets = hash_map->buckets;
-    int capacity = hash_map->capacity;
+void HMclear(HashMap* hm) {
+    HMNode* buckets = hm->buckets;
+    int capacity = hm->capacity;
 
-    HMNode *curr_node, *next_node;
+    HMNode *currNode, *nextNode;
     for(int i = 0; i < capacity; i++) {
-        curr_node = buckets + i;
-        if(!memcmp(curr_node, &EMPTY_NODE, sizeof(HMNode))) continue;
+        currNode = buckets + i;
+        if(!memcmp(currNode, &EMPTY_NODE, sizeof(HMNode))) continue;
 
-        next_node = curr_node->next;
-        *curr_node = EMPTY_NODE;
-        while(next_node != NULL) {
-            curr_node = next_node;
-            next_node = curr_node->next;
-            Free(curr_node);       // only free the consequent nodes because the buckets themselves must stay
+        nextNode = currNode->next;
+        *currNode = EMPTY_NODE;
+        while(nextNode != NULL) {
+            currNode = nextNode;
+            nextNode = currNode->next;
+            Free(currNode);       // only free the consequent nodes because the buckets themselves must stay
         }
     }
 
-    hash_map->size = 0;
+    hm->size = 0;
 }
 
-void hm_destroy(HashMap* hash_map) {
-    hm_clear(hash_map);
-    Free(hash_map->buckets);
-    Free(hash_map);
+void HMdestroy(HashMap* hm) {
+    HMclear(hm);
+    Free(hm->buckets);
+    Free(hm);
 }

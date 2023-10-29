@@ -18,7 +18,7 @@
  * 
  * @return the server's socket
 */
-SOCKET connect_to_server() {
+SOCKET ConnectToServer() {
 	char hostname[HOSTNAME_MAX_LENGTH + 1];
 	char port[PORT_MAX_LENGTH + 1];
 
@@ -60,23 +60,23 @@ SOCKET connect_to_server() {
 
 
 int main(void) {
-	SOCKET sConn = connect_to_server();
+	SOCKET sConn = ConnectToServer();
 
-	HashMap* directory_links = hm_create();
+	HashMap* directoryLinks = HMcreate();
 	FILE *fp = Fopen(DIRECTORY_LINKS_FILE_NAME, "r");
 
-	WCHAR server_dir[PATH_MAX];
-	WCHAR client_dir[PATH_MAX];
+	WCHAR serverDir[PATH_MAX];
+	WCHAR clientDir[PATH_MAX];
 
-	while(fwscanf(fp, L"%ls %ls", server_dir, client_dir) == 2) {
-		WCHAR* heap_server_dir = Malloc((wcslen(server_dir) + 1) * sizeof(WCHAR));
-    	WCHAR* heap_client_dir = Malloc((wcslen(client_dir) + 1) * sizeof(WCHAR));
-    	wcscpy(heap_server_dir, server_dir);
-   		wcscpy(heap_client_dir, client_dir);
+	while(fwscanf(fp, L"%ls %ls", serverDir, clientDir) == 2) {
+		WCHAR* heapServerDir = Malloc((wcslen(serverDir) + 1) * sizeof(WCHAR));
+    	WCHAR* heapClientDir = Malloc((wcslen(clientDir) + 1) * sizeof(WCHAR));
+    	wcscpy(heapServerDir, serverDir);
+   		wcscpy(heapClientDir, clientDir);
 
-		hm_put(directory_links, heap_client_dir, heap_server_dir);
+		HMput(directoryLinks, heapClientDir, heapServerDir);
 		// call function to check for discrepancies beteween server and client directories
-		directory_event_listener_start(heap_client_dir, NULL);
+		StartDirectoryEventListener(heapClientDir, NULL);
 	}
 
 	return 0;

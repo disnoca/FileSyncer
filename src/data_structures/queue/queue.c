@@ -3,22 +3,22 @@
 
 /* Helper Functions */
 
-static queue_node* queue_node_create(void* data) {
-	queue_node* node = Calloc(1, sizeof(queue_node));
+static QueueNode* CreateQueueNode(void* data) {
+	QueueNode* node = Calloc(1, sizeof(QueueNode));
 	node->data = data;
 	return node;
 }
 
 /* Header Implementation */
 
-queue* queue_create() {
-	queue* q = Calloc(1, sizeof(queue));
-	q->ed_mutex = _CreateMutexW(NULL, FALSE, NULL);
+Queue* QueueCreate() {
+	Queue* q = Calloc(1, sizeof(Queue));
+	q->edMutex = _CreateMutexW(NULL, FALSE, NULL);
 	return q;
 }
 
-void enqueue(queue* q, void* data) {
-	queue_node* node = queue_node_create(data);
+void Enqueue(Queue* q, void* data) {
+	QueueNode* node = CreateQueueNode(data);
 
 	if(q->length == 0)
 		q->head = node;
@@ -29,8 +29,8 @@ void enqueue(queue* q, void* data) {
 	q->length++;
 }
 
-void* dequeue(queue* q) {
-	queue_node* node = q->head;
+void* Dequeue(Queue* q) {
+	QueueNode* node = q->head;
 	void* data = node->data;
 
 	q->head = node->next;
@@ -42,23 +42,15 @@ void* dequeue(queue* q) {
 
 /* Concurrency Methods */
 
-void concurrent_enqueue(queue* q, void* data) {
-	if(q->length > 1) {
-		enqueue(q, data);
-		return;
-	}
-
-	_WaitForSingleObject(q->ed_mutex, INFINITE);
-	enqueue(q, data);
-	_ReleaseMutex(q->ed_mutex);	
+void ConcurrentEnqueue(Queue* q, void* data) {
+	_WaitForSingleObject(q->edMutex, INFINITE);
+	Enqueue(q, data);
+	_ReleaseMutex(q->edMutex);	
 }
 
-void* concurrent_dequeue(queue* q) {
-	if(q->length > 1)
-		return dequeue(q);
-
-	_WaitForSingleObject(q->ed_mutex, INFINITE);
-	void* data = dequeue(q);
-	_ReleaseMutex(q->ed_mutex);
+void* ConcurrentDequeue(Queue* q) {
+	_WaitForSingleObject(q->edMutex, INFINITE);
+	void* data = Dequeue(q);
+	_ReleaseMutex(q->edMutex);
 	return data;
 }
