@@ -52,7 +52,7 @@ SOCKET ConnectToServer() {
     }
 
 	if(sConn == INVALID_SOCKET)
-		exit_with_error("Unable to connect to server\n");
+		ExitWithError("Unable to connect to server\n");
 
 	freeaddrinfo(result);
 	return sConn;

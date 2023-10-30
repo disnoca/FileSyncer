@@ -4,14 +4,14 @@
 
 #define LISTENER_LOOP_BUFFER_SIZE ((3 * sizeof(DWORD) + MAX_PATH * sizeof(WCHAR)) * 4)
 
-#define DISPATCHER_LOOP_NO_EVENTS_SLEEP_TIME 1000
-#define DISPATCHER_LOOP_EVENT_BATCH_CHECK_SLEEP_TIME 100
+#define DISPATCHER_LOOP_CHAIN_EVENTS_CHECK_SLEEP_TIME 5
 
 
 typedef struct {
 	WCHAR* dirPath;
 	void (*handlerFunction) (DWORD action, WCHAR* dirPath, WCHAR* filename);
 	Queue* eventQueue;
+	HANDLE queueMutex, availableEventsEvent;
 } DirectoryEventListenerData;
 
 
@@ -24,12 +24,25 @@ static DWORD WINAPI DirectoryEventDispatcherLoop(LPVOID lpParam) {
 	DirectoryEventListenerData *deld = (DirectoryEventListenerData*) lpParam;
 
 	while(TRUE) {
-		while(deld->eventQueue->length == 0)
-			Sleep(DISPATCHER_LOOP_NO_EVENTS_SLEEP_TIME);
+		// Wait for events to be available
+		_WaitForSingleObject(deld->availableEventsEvent, INFINITE);
 
-		FILE_NOTIFY_INFORMATION* fni = (FILE_NOTIFY_INFORMATION*) ConcurrentDequeue(deld->eventQueue);
+		/*
+		 * There are many directory change scenarios that report a chain events from a single action, the longest of which is 3 steps.
+		 * In order to be able to analyse the action, the thread needs all relevant events already in the queue.
+		 * Worst case scenario, the events come singularly in separate batches, therefore, if the queue has less than that number of batches,
+		 * the thread allows for a short time for those batches to reported and added to the queue.
+		*/
+		if(deld->eventQueue->length <= 2)
+			Sleep(DISPATCHER_LOOP_CHAIN_EVENTS_CHECK_SLEEP_TIME);
+
+		_WaitForSingleObject(deld->queueMutex, INFINITE);
+		FILE_NOTIFY_INFORMATION* fni = (FILE_NOTIFY_INFORMATION*) Dequeue(deld->eventQueue);
+		if(deld->eventQueue->length == 0)
+			_ResetEvent(deld->availableEventsEvent);
+		_ReleaseMutex(deld->queueMutex);
+
 		FILE_NOTIFY_INFORMATION* currFni = fni;
-
 		while(TRUE) {
 			WCHAR* filename = Malloc(currFni->FileNameLength + sizeof(WCHAR));
 			memcpy(filename, currFni->FileName, currFni->FileNameLength);
@@ -71,7 +84,7 @@ static DWORD WINAPI DirectoryEventListenerLoop(LPVOID lpParam) {
 	BYTE buffer[LISTENER_LOOP_BUFFER_SIZE];
 	OVERLAPPED overlapped;
 	DWORD bytesTransferred;
-  	overlapped.hEvent = _CreateEventW(NULL, FALSE, 0, NULL);
+  	overlapped.hEvent = _CreateEvent(NULL, FALSE, 0, NULL);
 
 	while(TRUE) {
 		// Wait for changes in the directory
@@ -82,7 +95,12 @@ static DWORD WINAPI DirectoryEventListenerLoop(LPVOID lpParam) {
 		// Save and enqueue the changes
 		FILE_NOTIFY_INFORMATION* fni = Malloc(bytesTransferred);
 		memcpy(fni, buffer, bytesTransferred);
-		ConcurrentEnqueue(deld->eventQueue, fni);
+
+		_WaitForSingleObject(deld->queueMutex, INFINITE);
+		Enqueue(deld->eventQueue, fni);
+		if(deld->eventQueue->length == 1)
+			_SetEvent(deld->availableEventsEvent);
+		_ReleaseMutex(deld->queueMutex);
 	}
 
 	return 0;
@@ -93,6 +111,8 @@ void StartDirectoryEventListener(WCHAR* dirPath, void (*handlerFunction) (DWORD 
 	deld->dirPath = dirPath;
 	deld->handlerFunction = handlerFunction;
 	deld->eventQueue = QueueCreate();
+	deld->queueMutex = _CreateMutex(NULL, FALSE, NULL);
+	deld->availableEventsEvent = _CreateEvent(NULL, FALSE, FALSE, NULL);
 
 	_CreateThread(NULL, 0, DirectoryEventListenerLoop, deld, 0, NULL);
 	_CreateThread(NULL, 0, DirectoryEventDispatcherLoop, deld, 0, NULL);

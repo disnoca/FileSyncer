@@ -67,7 +67,5 @@ int main(void) {
 		StartDirectoryEventListener(heap_server_dir, NULL);
 	}
 
-	while(TRUE);
-
 	return 0;
 }

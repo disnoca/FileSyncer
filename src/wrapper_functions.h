@@ -7,7 +7,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void exit_with_error(const char* format, ...);
+#define _CreateEvent _CreateEventW
+#define _CreateMutex _CreateMutexW
+
+void ExitWithError(const char* format, ...);
 
 void* Malloc(size_t size);
 void* Calloc(size_t nitems, size_t size);
@@ -35,10 +38,12 @@ HANDLE _CreateFileW(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode
 
 HANDLE _CreateThread(LPSECURITY_ATTRIBUTES lpThreadAttributes, SIZE_T dwStackSize, LPTHREAD_START_ROUTINE  lpStartAddress, LPVOID lpParameter, DWORD dwCreationFlags, LPDWORD lpThreadId);
 DWORD _WaitForSingleObject(HANDLE hHandle, DWORD dwMilliseconds);
-HANDLE _CreateEventW(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState, LPCWSTR lpName);
 void _GetOverlappedResult(HANDLE hFile, LPOVERLAPPED lpOverlapped, LPDWORD lpNumberOfBytesTransferred, BOOL bWait);
 HANDLE _CreateMutexW(LPSECURITY_ATTRIBUTES lpMutexAttributes, BOOL bInitialOwner, LPCWSTR lpName);
 void _ReleaseMutex(HANDLE hMutex);
+HANDLE _CreateEventW(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState, LPCWSTR lpName);
+void _SetEvent(HANDLE hEvent);
+void _ResetEvent(HANDLE hEvent);
 
 void _ReadDirectoryChangesW( HANDLE hDirectory, LPVOID lpBuffer, DWORD nBufferLength, BOOL bWatchSubtree, DWORD dwNotifyFilter, LPDWORD lpBytesReturned, LPOVERLAPPED lpOverlapped, LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
 

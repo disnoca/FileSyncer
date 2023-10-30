@@ -12,9 +12,7 @@ static QueueNode* CreateQueueNode(void* data) {
 /* Header Implementation */
 
 Queue* QueueCreate() {
-	Queue* q = Calloc(1, sizeof(Queue));
-	q->edMutex = _CreateMutexW(NULL, FALSE, NULL);
-	return q;
+	return Calloc(1, sizeof(Queue));
 }
 
 void Enqueue(Queue* q, void* data) {
@@ -37,20 +35,5 @@ void* Dequeue(Queue* q) {
 	q->length--;
 
 	Free(node);
-	return data;
-}
-
-/* Concurrency Methods */
-
-void ConcurrentEnqueue(Queue* q, void* data) {
-	_WaitForSingleObject(q->edMutex, INFINITE);
-	Enqueue(q, data);
-	_ReleaseMutex(q->edMutex);	
-}
-
-void* ConcurrentDequeue(Queue* q) {
-	_WaitForSingleObject(q->edMutex, INFINITE);
-	void* data = Dequeue(q);
-	_ReleaseMutex(q->edMutex);
 	return data;
 }
