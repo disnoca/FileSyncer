@@ -50,7 +50,7 @@ SOCKET InitServer() {
 int main(void) {
 	SOCKET sServer = InitServer();
 
-	HashMap* directoryLinks = HMcreate();
+	HashMap* directoryLinks = CreateHashMap();
 	FILE *fp = Fopen(DIRECTORY_LINKS_FILE_NAME, "r");
 
 	WCHAR server_dir[PATH_MAX];
@@ -62,8 +62,7 @@ int main(void) {
     	wcscpy(heap_server_dir, server_dir);
    		wcscpy(heap_client_dir, client_dir);
 
-		HMput(directoryLinks, heap_server_dir, heap_client_dir);
-		// call function to check for discrepancies beteween server and client directories
+		HMPut(directoryLinks, heap_server_dir, heap_client_dir);
 		StartDirectoryEventListener(heap_server_dir, NULL);
 	}
 

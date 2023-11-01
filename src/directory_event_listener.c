@@ -112,7 +112,7 @@ void StartDirectoryEventListener(WCHAR* dirPath, void (*handlerFunction) (DWORD 
 	deld->handlerFunction = handlerFunction;
 	deld->eventQueue = QueueCreate();
 	deld->queueMutex = _CreateMutex(NULL, FALSE, NULL);
-	deld->availableEventsEvent = _CreateEvent(NULL, FALSE, FALSE, NULL);
+	deld->availableEventsEvent = _CreateEvent(NULL, TRUE, FALSE, NULL);
 
 	_CreateThread(NULL, 0, DirectoryEventListenerLoop, deld, 0, NULL);
 	_CreateThread(NULL, 0, DirectoryEventDispatcherLoop, deld, 0, NULL);

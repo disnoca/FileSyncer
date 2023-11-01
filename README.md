@@ -11,9 +11,9 @@ CONTENT: Path Size || Path || Data Size || Data
 Magic Number (4 bytes): 0x32C66E2F
 
 Message Type (1 byte):
-- 0x00: Update File
 - 0x01: Create File
 - 0x02: Delete File
+- 0x00: Update File
 
 ### Configuration Files
 - server.conf:

@@ -92,7 +92,7 @@ static void AddEntry(HashMap* hm, WCHAR* key, WCHAR* value) {
 
 /* ---------------- Header Implementation ---------------- */
 
-HashMap* HMcreate() {
+HashMap* CreateHashMap() {
     HashMap* hm = (HashMap*) Calloc(1, sizeof(HashMap));
     hm->capacity = DEFUALT_INITIAL_CAPACITY;
     hm->loadFactor = DEFAULT_LOAD_FACTOR;
@@ -100,14 +100,14 @@ HashMap* HMcreate() {
     return hm;
 }
 
-void HMput(HashMap* hm, WCHAR* key, WCHAR* value) {
+void HMPut(HashMap* hm, WCHAR* key, WCHAR* value) {
     AddEntry(hm, key, value);
 
     if(++hm->size > (hm->capacity * hm->loadFactor))
         Rehash(hm);
 }
 
-WCHAR* HMremove(HashMap* hm, WCHAR* key) {
+WCHAR* HMRemove(HashMap* hm, WCHAR* key) {
     HMNode* bucket = GetBucket(hm, key);
 
     HMNode* prevNode = NULL;
@@ -128,11 +128,11 @@ WCHAR* HMremove(HashMap* hm, WCHAR* key) {
     return value;
 }
 
-WCHAR* HMget(HashMap* hm, WCHAR* key) {
+WCHAR* HMGet(HashMap* hm, WCHAR* key) {
     return GetNode(hm, key)->value;
 }
 
-WCHAR* HMreplace(HashMap* hm, WCHAR* key, WCHAR* value) {
+WCHAR* HMReplace(HashMap* hm, WCHAR* key, WCHAR* value) {
     HMNode* node = GetNode(hm, key);
     WCHAR* old_value = node->value;
     node->value = value;
@@ -140,7 +140,7 @@ WCHAR* HMreplace(HashMap* hm, WCHAR* key, WCHAR* value) {
 
 }
 
-void HMclear(HashMap* hm) {
+void HMClear(HashMap* hm) {
     HMNode* buckets = hm->buckets;
     int capacity = hm->capacity;
 
@@ -161,8 +161,8 @@ void HMclear(HashMap* hm) {
     hm->size = 0;
 }
 
-void HMdestroy(HashMap* hm) {
-    HMclear(hm);
+void HMDestroy(HashMap* hm) {
+    HMClear(hm);
     Free(hm->buckets);
     Free(hm);
 }
