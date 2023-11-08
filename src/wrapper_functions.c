@@ -184,3 +184,11 @@ void _ReadDirectoryChangesW( HANDLE hDirectory, LPVOID lpBuffer, DWORD nBufferLe
     if(!ReadDirectoryChangesW(hDirectory, lpBuffer, nBufferLength, bWatchSubtree, dwNotifyFilter, lpBytesReturned, lpOverlapped, lpCompletionRoutine))
         ExitWithError("ReadDirectoryChangesW error: %lu\n", GetLastError());
 }
+
+
+DWORD _GetFileAttributesW(LPCWSTR lpFileName) {
+    DWORD res = GetFileAttributesW(lpFileName);
+    if(res == INVALID_FILE_ATTRIBUTES)
+        ExitWithError("GetFileAttributesW error: %lu\n", GetLastError());
+    return res;
+}

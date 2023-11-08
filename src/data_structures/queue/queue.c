@@ -11,7 +11,7 @@ static QueueNode* CreateQueueNode(void* data) {
 
 /* Header Implementation */
 
-Queue* QueueCreate() {
+Queue* CreateQueue() {
 	return Calloc(1, sizeof(Queue));
 }
 

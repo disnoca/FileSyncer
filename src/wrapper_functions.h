@@ -47,4 +47,6 @@ void _ResetEvent(HANDLE hEvent);
 
 void _ReadDirectoryChangesW( HANDLE hDirectory, LPVOID lpBuffer, DWORD nBufferLength, BOOL bWatchSubtree, DWORD dwNotifyFilter, LPDWORD lpBytesReturned, LPOVERLAPPED lpOverlapped, LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
 
+DWORD _GetFileAttributesW(LPCWSTR lpFileName);
+
 #endif

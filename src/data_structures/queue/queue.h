@@ -20,7 +20,7 @@ struct QueueNode {
  * 
  * @return a pointer to a new Queue
 */
-Queue* QueueCreate();
+Queue* CreateQueue();
 
 /**
  * Adds the specified element to the end of the specified Queue.

@@ -63,7 +63,7 @@ int main(void) {
    		wcscpy(heap_client_dir, client_dir);
 
 		HMPut(directoryLinks, heap_server_dir, heap_client_dir);
-		StartDirectoryEventListener(heap_server_dir, NULL);
+		StartDirectoryEventListener(heap_server_dir, testHandlerFunction);
 	}
 
 	return 0;
